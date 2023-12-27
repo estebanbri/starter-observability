@@ -20,7 +20,7 @@ OpenTelemetry tracing is only auto-configured when used together with Micrometer
 
 Spring Boot Actuator provides dependency management and auto-configuration for Micrometer, an application metrics facade that supports numerous monitoring systems, including: OpenTelemetry, Prometheus,etc.
 
-##### Paso 1. Agregar dependencia micrometer-registry-otlp.
+#### ___Paso 1___. Agregar dependencia micrometer-registry-otlp.
 Having a dependency on micrometer-registry-{system} in your runtime classpath is enough for Spring Boot to configure the registry (autoconfiguration).
 Esta dependencia permite generar/registrar de métricas para enviarlas a un sistema de observabilidad utilizando el formato OpenTelemetry Protocol (OTLP).
 ```xml
@@ -30,12 +30,12 @@ Esta dependencia permite generar/registrar de métricas para enviarlas a un sist
   <scope>runtime</scope>
 </dependency>
 ```
-##### Paso 2: Proveer la ubicacion del endpoint de opentelemetry
+#### ___Paso 2___: Proveer la ubicacion del endpoint de opentelemetry
 By default, metrics are exported to OpenTelemetry running on your local machine. You can provide the location of the OpenTelemetry metric endpoint to use by using:
 ```properties
 management.otlp.metrics.export.url=http://otlp.example.com:4318/v1/metrics
 ```
-##### Paso 3. Agregar configuración extra (ej: cada cuanto tiempo se va a enviar las metricas)
+#### ___Paso 3___. Agregar configuración extra (ej: cada cuanto tiempo se va a enviar las metricas)
 ```properties
 management.otlp.metrics.export.step=10s
 ```
@@ -54,7 +54,7 @@ para poder darle una respuesta al cliente, entonces dicho request se le asigno 1
 (claro solo 2 porque el primer servicio no se lo cuenta porque es como el padre que inicio el tramo).
 Mas que nada el spanId se usa como puntero para saber cual fue el padre que inicio el tramo.
 
-##### Paso 1: Agregar la dependencia que lo que hace es bridges the Micrometer Observation API to OpenTelemetry.
+#### ___Paso 1___: Agregar la dependencia que lo que hace es bridges the Micrometer Observation API to OpenTelemetry.
 Esta dependencia va a incluir behind the scenes toda la SDK de OpenTelemetry completa.
 ```xml
 <dependency>
@@ -63,7 +63,7 @@ Esta dependencia va a incluir behind the scenes toda la SDK de OpenTelemetry com
   <version>1.2.1</version>
 </dependency>
 ```
-##### Paso 2: Agregar la dependencia que lo que hace es: reports traces to a collector that can accept OTLP.
+#### ___Paso 2___: Agregar la dependencia que lo que hace es: reports traces to a collector that can accept OTLP.
 ```xml
 <dependency>
   <groupId>io.opentelemetry</groupId>
@@ -71,20 +71,20 @@ Esta dependencia va a incluir behind the scenes toda la SDK de OpenTelemetry com
   <version>1.31.0</version>
 </dependency>
 ```
-#### Paso Paso 2: Proveer la ubicacion del endpoint de opentelemetry
+#### ___Paso 3___: Proveer la ubicacion del endpoint de opentelemetry
 ```properties
 management.otlp.tracing.endpoint=http://otlp.example.com:4318/v1/traces
 ```
-##### Paso 3: Agregar configuración extra (sampling al 100%, porque por defecto spring boot solo samplea el 10% of requests para no saturar el trace backend)
+#### ___Paso 4___: Agregar configuración extra (sampling al 100%, porque por defecto spring boot solo samplea el 10% of requests para no saturar el trace backend)
 ```properties
 management.tracing.sampling.probability=1.0
 ```
 Nota: Micrometer Tracing le agrega el correlation Id automaticamente a cada request (aka el traceId + spanId).
-##### Paso 4 (Optional): si queres un formato diferente  podes configurarlo con:
+#### ___Paso 5 (Optional)___: si queres un formato diferente  podes configurarlo con:
 ```properties
 logging.pattern.correlation=[${spring.application.name:},%X{traceId:-},%X{spanId:-}]
 ```
-##### Paso 5: Configura tu RestTemplate o WebClient
+#### ___Paso 6___: Configura tu RestTemplate o WebClient
 To automatically propagate traces over the network, use the auto-configured RestTemplateBuilder or WebClient.Builder to construct the client.
 Importante!: If you create the WebClient or the RestTemplate without using the auto-configured builders, automatic trace propagation won’t work!
 ```java
@@ -104,7 +104,7 @@ En resumen, Logback appender necesita fordwardear los eventos de log a la SDK Lo
 para que el OpenTelemetryAppender funcione necesitamos acceder a la instancia de OpenTelemetry. 
 Esto necesita ser programaticamente durante el startup de la aplicación.
 
-##### Paso 1: Agregar la dependencia opentelemetry-logback-appender
+#### ___Paso 1___: Agregar la dependencia opentelemetry-logback-appender
 ```xml
 <dependency>
     <groupId>io.opentelemetry.instrumentation</groupId>
@@ -112,7 +112,7 @@ Esto necesita ser programaticamente durante el startup de la aplicación.
     <version>1.31.0-alpha</version>
 </dependency>
 ```
-##### Paso 2: Agregar appender OpenTelemetryAppender al archivo logback.
+#### ___Paso 2___: Agregar appender OpenTelemetryAppender al archivo logback.
 ```xml
 <appender name="OpenTelemetry"
 class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
@@ -120,14 +120,14 @@ class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppen
     <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
 </appender>
 ```
-##### Paso 3: Registrar el Appender anterior con el OpenTelemetry SDK (log bridge API / SDK) creando una clase  
+#### ___Paso 3___: Registrar el Appender anterior con el OpenTelemetry SDK (log bridge API / SDK) creando una clase  
 En la clase la linea más importante es esta OpenTelemetryAppender.install(openTelemetrySdk) cuando al appender le registras la sdk de opentelemetry
 
-##### Paso 4: Proveer la ubicacion del endpoint de opentelemetry
+#### ___Paso 4___: Proveer la ubicacion del endpoint de opentelemetry
 ```properties
 otel.collector.log.url=http://localhost:4317
 ```
-Fuente: https://github.com/nlinhvu/hello-service/tree/main
+___Fuente___: https://github.com/nlinhvu/hello-service/tree/main
 1. Metrics Monitoring: Spring Boot 3 -- Prometheus -- Grafana
 2. Metrics Monitoring: Spring Boot 3 -- OpenTelemetry -- Prometheus -- Grafana (https://www.youtube.com/watch?v=B-ZZk4HZrfY&list=PLLMxXO6kMiNiwHCayWk74XynT5tvoMa4u&index=2)
 3. Tracing Monitoring: Spring Boot 3 -- OpenTelemetry -- Jaeger -- Zipkin (https://www.youtube.com/watch?v=ducj4uR_ZoE&list=PLLMxXO6kMiNiwHCayWk74XynT5tvoMa4u&index=3)
