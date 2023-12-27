@@ -1,0 +1,62 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+      grpc:
+
+processors:
+  # batch metrics before sending to reduce API usage
+  batch:
+
+exporters:
+  logging:
+    loglevel: debug
+
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
+
+  # Le puso 0.0.0.0 de ip porque es un caso especial porque prometheus para hacer el scraping hace una llamada dentro de la red de docker (inside docker network)
+  # const_labels podes agregarle cualquier meta-informacion que te sea util despues para poder identificar el trace
+  # AVERIGUA COMO SABE OTEL QUE ESTE ENDPOINT ES PARA ESCRAPEAR PORQUE SI BIEN LO PONES COMO EXPORTER OTEL NO TERMINA HACIENDO UN REQUEST A ESTE ENDPOINT COMO SI FUERA HTTP Y LOS DEMAS SI
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    const_labels:
+      environment: development
+
+  otlp:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  zipkin:
+    endpoint: "http://zipkin-all-in-one:9411/api/v2/spans"
+    format: proto
+
+  jaeger:
+    endpoint: jaeger-all-in-one:14250
+    tls:
+      insecure: true
+
+# https://github.com/open-telemetry/opentelemetry-collector/blob/main/extension/README.md
+extensions:
+  # responsible for responding to health check calls on behalf of the collector.
+  health_check:
+  # fetches the collector’s performance data
+  pprof:
+  # serves as an http endpoint that provides live debugging data about instrumented components.
+  zpages:
+
+service:
+  extensions: [health_check, pprof, zpages]
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [jaeger,zipkin,otlp]
+    logs:
+      receivers: [otlp]
+      exporters: [loki]
