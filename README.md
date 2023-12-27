@@ -1,22 +1,25 @@
-# Observability (https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.observability)
+# Observability 
+> https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.observability
+
 Para metricas y traces, Spring Boot usa Micrometer Observation (https://micrometer.io/docs/observation).
 
 1. OpenTelemetry Support
 El modulo de spring boot actuator incluye el soporte para OpenTelemetry.
-![Observability](https://assets.digitalocean.com/articles/alligator/boo.svg "Observability")
+![Observability](https://github.com/estebanbri/starter-observability/blob/master/observability.png "Observability")
 
 Nota:
 Spring Boot does not provide auto-configuration for OpenTelemetry metrics or logging. 
 OpenTelemetry tracing is only auto-configured when used together with Micrometer Tracing.
 
-### Requisitos para Observabilidad
+## Requisitos para Observabilidad
 - Version minima de spring boot: Version 3.0
   - Motivo: (revisar si solo usa esta clase para sacar metricas) observabilidad con OtlpMetricsExportAutoConfiguration apareció recién en spring boot 3.0 (La cual es una clase de actuator que permite generar metricas dde tu app automaticamente, solo configurando el endpoint a traves de ella va ir exportando las metricas)
 
-#### Metricas (https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.metrics)
+## Metricas 
+> https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.metrics
+
 Spring Boot Actuator provides dependency management and auto-configuration for Micrometer, an application metrics facade that supports numerous monitoring systems, including: OpenTelemetry, Prometheus,etc.
 
-##### OpenTelemetry
 ##### Paso 1. Agregar dependencia micrometer-registry-otlp.
 Having a dependency on micrometer-registry-{system} in your runtime classpath is enough for Spring Boot to configure the registry (autoconfiguration).
 Esta dependencia permite generar/registrar de métricas para enviarlas a un sistema de observabilidad utilizando el formato OpenTelemetry Protocol (OTLP).
@@ -40,7 +43,9 @@ Nota: Para debuggear si se esta exportando correctamente desde tu app. Spring bo
 - OtlpMetricsExportAutoConfiguration 
 - OtlpMeterRegistry.class (ponele un breakpoint al metodo publish() que es el que se llama cada vez que se exportan metricas)
 
-#### Traces (https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.micrometer-tracing)
+## Traces 
+> https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.micrometer-tracing
+
 Spring Boot Actuator provides dependency management and auto-configuration for Micrometer Tracing, a facade for popular tracer libraries.
 Nota: Para hacer este seguimiento de trazas dado un request se le va a asignar dos id's. Uno de ellos va a permanecer invariable
 de principio a fin del flujo completo de llamadas este se llama 'traceId', y por otro lado el otro id va a cambiando a medida que
@@ -92,7 +97,9 @@ Nota: Para debuggear si se esta exportando correctamente desde tu app. Spring bo
 - OtlpAutoConfiguration
 - OtlpHttpSpanExporter.class (ponele un breakpoint al metodo export() que es el que se llama cada vez que se exportan spans)
 
-#### Loggers (https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.loggers)
+## Loggers 
+> https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.loggers
+
 En resumen, Logback appender necesita fordwardear los eventos de log a la SDK Log de OpenTelemetry. Es decir
 para que el OpenTelemetryAppender funcione necesitamos acceder a la instancia de OpenTelemetry. 
 Esto necesita ser programaticamente durante el startup de la aplicación.
@@ -113,7 +120,7 @@ class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppen
     <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
 </appender>
 ```
-##### Paso 3: Registrar el Appender anterior con el OpenTelemetry SDK (log bridge API / SDK) creando una clase  (A partir de version 1.27 la SDK de opentelemetry recién es stable)
+##### Paso 3: Registrar el Appender anterior con el OpenTelemetry SDK (log bridge API / SDK) creando una clase  
 En la clase la linea más importante es esta OpenTelemetryAppender.install(openTelemetrySdk) cuando al appender le registras la sdk de opentelemetry
 
 ##### Paso 4: Proveer la ubicacion del endpoint de opentelemetry
