@@ -2,8 +2,8 @@
 > https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.observability
 
 Caracteristica propias de este proyecto:
-- Tipo de instrumentación → **Manual**. (Es decir se utilizó la libreria micrometer y micrometer-traicing + bridge con OpenTelemetry, para generar información de metricas y tracing respectivamente. Y para los logs se usó una libreria propia de OpenTelemetrySDK(Log SDK) que genera el bridge entre logback y otel.     
-- Tipo deployment del collector → **As a Service** (Es decir existe un container docker corriendo el servicio de otel-collector)
+- ***Tipo de instrumentación → Manual***. (Es decir se utilizó la libreria micrometer y micrometer-traicing + bridge con OpenTelemetry, para generar información de metricas y tracing respectivamente. Y para los logs se usó una libreria propia de OpenTelemetrySDK(Log SDK) que genera el bridge entre logback y otel.     
+- ***Tipo deployment del collector → As a Service*** (Es decir existe un container docker corriendo el servicio de otel-collector)
 
 Para metricas y traces, Spring Boot usa Micrometer Observation (https://micrometer.io/docs/observation).
 
